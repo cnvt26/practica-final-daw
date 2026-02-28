@@ -1,6 +1,6 @@
 # Despliegue en Vercel, Render y Railway
 
-Este repositorio es una guía práctica para aprender a estructurar, dockerizar y desplegar una aplicación web siguiendo los principios de **CI/CD** con **GitHub Actions**, **Vercel**, **Render** y **Railway**.
+Este repositorio es una guía práctica para aprender a estructurar, dockerizar y desplegar mi aplicación web siguiendo los principios de **CI/CD** con **GitHub Actions**, **Vercel**, **Render** y **Railway**.
 
 Para el  **entorno de desarrollo local**, utilizaremos **Docker Compose** para levantar el frontend (Vue 3), el backend (FastAPI) y la base de datos en contenedores separados, emulando el entorno de producción.
 
@@ -15,6 +15,10 @@ A modo de resumen, esta serían las tecnologías utilizadas:
 - **Despliegue:** GitHub Actions + Render + Vercel + Railway.
 
 <!-- --- -->
+
+## 🚀 Demo en Vivo
+Puedes probar la aplicación desplegada en el siguiente enlace:
+[👉 Ver Gestor de Películas en Vercel](practica-final-daw.vercel.app)
 
 ## Índice
 
