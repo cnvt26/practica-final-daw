@@ -18,7 +18,7 @@ A modo de resumen, esta serían las tecnologías utilizadas:
 
 ## 🚀 Demo en Vivo
 Puedes probar la aplicación desplegada en el siguiente enlace:
-[👉 Ver Gestor de Películas en Vercel](practica-final-daw.vercel.app)
+[👉 Ver Gestor de Películas en Vercel](https://practica-final-daw.vercel.app/)
 
 ## Índice
 
