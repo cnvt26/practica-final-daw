@@ -123,7 +123,7 @@ const toggleWatched = async (movie: any) => {
     const updated = await apiService.updateMovie(movie.id, { ...movie, watched: !movie.watched });
     const index = movies.value.findIndex(m => m.id === movie.id);
     if (index !== -1) movies.value[index] = updated;
-  } catch (e) {
+  } catch (e : any) {
     if (e.response?.status === 401) logout();
   }
 };
@@ -132,7 +132,7 @@ const deleteMovie = async (id: number) => {
   try {
     await apiService.deleteMovie(id);
     movies.value = movies.value.filter(m => m.id !== id);
-  } catch (e) {
+  } catch (e : any) {
     if (e.response?.status === 401) logout();
   }
 };
