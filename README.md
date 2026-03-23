@@ -44,7 +44,7 @@ El repositorio está organizado siguiendo el patrón de monorepositorio sencillo
 └── README.md               # Esta documentación
 ```
 
-### 2. Implementar Monitorización (Logging) y los Tests 🧪
+### 1.2. Implementar Monitorización (Logging) y los Tests 🧪
 
 Para cumplir con el apartado 9 sin romper la app, vamos a hacer dos cosas en la carpeta `backend`: añadir `pytest` a los requerimientos y crear un archivo de pruebas.
 
@@ -55,311 +55,112 @@ Abre ese archivo y añade estas líneas al final para poder usar los tests:
 pytest==8.0.0
 httpx==0.26.0
 ```
+## 2. Estructura del Backend y Endpoints
 
-## 1. Estructura del Proyecto
+El backend expone una API RESTful para gestionar las películas.
 
-El repositorio está organizado siguiendo el **patrón de monorepositorio sencillo**, donde cada servicio tiene su propia responsabilidad y configuración:
-
-```text
-.
-├── backend/                # API REST con FastAPI (Python)
-│   ├── main.py             # Lógica de la API y configuración de CORS
-│   ├── requirements.txt    # Dependencias del proyecto
-│   └── Dockerfile          # Imagen optimizada para producción (Multi-stage)
-├── frontend/               # Aplicación Web con Vue 3 + Vite
-│   ├── src/
-│   │   ├── App.vue         # Componente principal
-│   │   ├── main.ts         # Punto de entrada
-│   │   ├── style.css       # Estilos globales con Tailwind
-│   │   └── services/
-│   │       └── api.ts      # Servicio para consumir API del backend
-│   ├── index.html          # Punto de entrada HTML
-│   ├── Dockerfile          # Imagen optimizada (Multi-stage)
-│   ├── vite.config.ts      # Configuración de Vite
-│   └── tailwind.config.js  # Configuración de Tailwind CSS
-├── .github/workflows/      # Automatización (CI/CD)
-│   ├── deploy-backend.yaml # Despliegue automático a Render
-│   └── deploy-frontend.yaml# Despliegue automático a Vercel
-├── .env.example            # Variables de entorno de ejemplo
-├── compose.yaml            # Orquestación para desarrollo local
-└── README.md               # Esta documentación
-```
-
-<!-- --- -->
-
-## 2. Desarrollo local con Docker
-
-Para asegurar que todos los desarrolladores trabajen en el mismo entorno, utilizamos **Docker Compose**. Esto nos permite emular cómo funcionará la aplicación en producción.
-
-### Requisitos:
-
-- Docker y Docker Compose instalados en la máquina de desarrollo.
-
-### Pasos:
-
-1. Clona el repositorio.
-2. Crea tu archivo de entorno local:
-   ```bash
-   cp .env.example .env
-   ```
-3. Desde la raíz, levanta los servicios:
-   ```bash
-   docker compose up --build
-   ```
-4. Accede a las aplicaciones:
-   - **Frontend:** [http://localhost:3000](http://localhost:3000)
-   - **Backend API:** [http://localhost:8000](http://localhost:8000)
-   - **Documentación Interactiva (Swagger):** [http://localhost:8000/docs](http://localhost:8000/docs)
-
-<!-- --- -->
+- `GET /` - Estado del backend  
+- `GET /api/movies` - Listar todas las películas  
+- `POST /api/movies` - Añadir una nueva película  
+- `PUT /api/movies/{id}` - Actualizar el estado (vista/no vista)  
+- `DELETE /api/movies/{id}` - Eliminar una película  
+- `GET /docs` - Documentación interactiva (Swagger / OpenAPI) generada automáticamente  
 
 ## 3. Estructura del Frontend
 
-### Componentes principales:
+### Componentes principales
 
-- **App.vue:** Componente raíz que consume datos del backend
-- **services/api.ts:** Servicio centralizador para peticiones HTTP con axios
-- **style.css:** Estilos globales usando Tailwind CSS
+- **App.vue**: Componente raíz que consume datos del backend y muestra la lista de películas  
+- **services/api.ts**: Servicio centralizador para peticiones HTTP con Axios  
+- **style.css**: Estilos globales usando Tailwind CSS  
 
-### Consumiendo datos del backend:
+### Consumiendo datos del backend
 
-```typescript
+```ts
 // src/services/api.ts
 import { apiService } from './services/api'
 
-// En el componente
+// En el componente Vue
 onMounted(async () => {
-   const data = await apiService.listItems()
-  // Usar los datos
+  const movies = await apiService.listMovies()
+  // Usar los datos de las películas
 })
 ```
 
-### Variables de entorno:
-
-```bash
-# Durante desarrollo
+Variables de entorno necesarias
+```
+# Durante desarrollo (local)
 VITE_API_URL=http://localhost:8000
 
-# En producción (Render)
+# En producción (Vercel)
 VITE_API_URL=https://tu-api.onrender.com
 ```
 
-<!-- --- -->
+## 4. Guía de Despliegue (CI/CD)
 
-## 4. Estructura del Backend
+El objetivo es que cada vez que hagas un git push a la rama main, la aplicación se actualice automáticamente en internet usando GitHub Actions.
 
-### Endpoints disponibles:
+### A. Base de Datos MySQL (Railway)
 
-- **GET /** - Estado del backend
-- **GET /api/data** - Estado general y datos de ejemplo
-- **GET /api/items** - Listar tareas
-- **POST /api/items** - Crear tarea
-- **PUT /api/items/{id}** - Actualizar tarea
-- **DELETE /api/items/{id}** - Eliminar tarea
-- **GET /docs** - Documentación interactiva (Swagger)
+- Crea un proyecto en Railway y añade una base de datos MySQL
 
-### CORS configurado:
+- Copia la cadena de conexión de la pestaña Variables (empieza por mysql://)
 
-El backend permite peticiones desde cualquier origen (configurable en producción):
+### B. Despliegue del Backend (Render)
 
-```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # En producción, restringir a dominios específicos
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
+- En Render, crea un nuevo Web Service conectado a tu repositorio
 
-<!-- --- -->
+- Configura el Root Directory como ./backend
 
-## 5. Guía de Despliegue (CI/CD)
+- Entorno de ejecución: Docker
 
-El objetivo es que cada vez que hagas un `git push` a la rama `main`, la aplicación se actualice automáticamente en internet.
+- Añade la variable de entorno DATABASE_URL y pega la URL de Railway
 
-### A. Despliegue del Backend (Render)
+Para el despliegue automático:
 
-**Configuración para el despliegue automático con GitHub**
+- Copia el Deploy Hook en Render
 
-1. Ve a [Render.com](https://render.com) e inicia sesión, o crea una cuenta con GitHub.
-2. Haz clic en **"New +"** > **"Web Service"**.
-3. Conecta tu repositorio de GitHub:
-   - Selecciona tu repositorio (`vercel-render`).
-   - Haz clic en **"Connect"**.
-4. Configura el servicio:
-   - **Name:** `vercel-render-backend`
-   - **Root Directory:** `./backend` (importante)
-   - **Runtime:** `Docker`
-   - **Region:** Elige la más cercana a ti
-   - **Plan:** Free (o el que prefieras)
-5. Haz clic en **"Create Web Service"** y espera a que se despliegue.
-6. Una vez desplegado, tu backend estará disponible en una URL como: `https://vercel-render-backend-xxx.onrender.com`
+- Guárdalo en tu GitHub como un Secret llamado 
+RENDER_DEPLOY_HOOK
 
-**Configurar Deploy Hook para despliegue automático:**
+### C. Despliegue del Frontend (Vercel)
 
-7. En el dashboard de Render, ve a tu servicio > **Settings**.
-8. Busca la sección **"Deploy Hook"** y copia la URL completa.
-9. Ve a tu repositorio en GitHub > **Settings** > **Secrets and variables** > **Actions**.
-10. Crea un nuevo Secret:
-    - **Name:** `RENDER_DEPLOY_HOOK`
-    - **Value:** Pega la URL de Render copiada en el paso 8
-11. Haz clic en **"Add secret"**.
+- Importa el repositorio en Vercel
 
-**¿Qué sucede ahora?**
-- Cada vez que hagas `git push` a la rama `main`, GitHub dispara automáticamente el Deploy Hook de Render.
-- Render recibe la notificación y comienza un nuevo despliegue.
-- Tu backend se actualiza en internet en 1-2 minutos.
+- Configura el Root Directory seleccionando la carpeta ./frontend
 
-**Verifica que funciona:**
-- En GitHub, ve a **Actions** después de hacer push.
-- Verás los workflows ejecutándose y llamando al Deploy Hook de Render.
-- En Render Dashboard, verás nuevos despliegues iniciándose automáticamente.
+- Añade la variable de entorno VITE_API_URL apuntando a la URL pública de tu backend en Render
 
-**Base de Datos MySQL en Producción (Railway):**
+Para el despliegue automático:
 
-- Crea una base de datos MySQL en Railway.
-- Copia la cadena de conexión que te proporciona Railway. La puedes encontrar en la sección de variables de entorno de tu proyecto, en la variable `MYSQL_PUBLIC_URL`. 
-- En Render > tu servicio backend > **Environment Variables**, agrega:
-   - **Name:** `DATABASE_URL`
-   - **Value:** `mysql+pymysql://user:password@host:port/database`
+- Genera un Token en los ajustes de tu cuenta de Vercel
 
-Con `DATABASE_URL` definido, el backend usará esa base de datos en producción. En local, seguirá usando las variables `DB_*` de `compose.yaml`.
+- Guárdalo en tu GitHub como un Secret llamado VERCEL_TOKEN
 
-> Nota: si Railway te entrega la URL con `mysql://`, el backend la normaliza automáticamente a `mysql+pymysql://`.
+## 5. Conceptos clave
 
-<!-- --- -->
+**Docker Multi-stage:** Usado en los Dockerfile para compilar la app y luego mover solo lo estrictamente necesario a producción, reduciendo el tamaño y mejorando la seguridad
 
-### B. Despliegue del Frontend (Vercel)
+**CORS (Cross-Origin Resource Sharing):** El backend en FastAPI está configurado para aceptar peticiones de nuestro frontend en Vercel, evitando bloqueos de seguridad del navegador
 
-**Despliegue automático mediante GitHub Actions:**
+**GitHub Secrets:** Utilizados para almacenar de forma segura las "llaves" de Render y Vercel, permitiendo a los robots de GitHub hacer los despliegues sin exponer contraseñas en el código público
 
-1. Ve a [Vercel.com](https://vercel.com) e inicia sesión (o crea una cuenta con GitHub).
-2. Haz clic en **"Add New"** > **"Project"**.
-3. Conecta tu repositorio de GitHub:
-   - Selecciona tu repositorio (`vercel-render`).
-   - Haz clic en **"Import"**.
-4. Configura el proyecto:
-   - **Project Name:** `vercel-render-frontend` (o el que prefieras)
-   - **Root Directory:** `./frontend` (importante, señala la carpeta del frontend)
-   - **Framework Preset:** `Vite`
-   - **Build Command:** `npm run build` (Vercel lo detecta automáticamente)
-   - **Output Directory:** `dist`
-5. Configura las variables de entorno:
-   - En la sección **"Environment Variables"**, agrega:
-     - **Name:** `VITE_API_URL`
-     - **Value:** `https://tu-backend.onrender.com` (reemplaza con tu URL de Render)
-6. Haz clic en **"Deploy"** y espera a que termine.
-7. Una vez desplegado, tu frontend estará disponible en una URL como: `https://vercel-render-frontend-xxx.vercel.app`
+## 6. Comandos útiles (Desarrollo local)
 
-**Obtener el token de Vercel para GitHub Actions CI/CD:**
+Si quieres ejecutar el proyecto en tu ordenador con Docker:
 
-8. Ve a [Vercel Settings > Tokens](https://vercel.com/account/tokens).
-9. Haz clic en **"Create"**.
-10. Asigna un nombre descriptivo (ej: `GitHub CI/CD`).
-11. Selecciona el scope: **Full Account**
-12. Haz clic en **"Create Token"** y copia el token completo.
+### Levantar todos los servicios (Frontend, Backend, DB)
 
-**Configurar el token en GitHub Secrets:**
+`docker compose up --build`
 
-13. Ve a tu repositorio en GitHub > **Settings** > **Secrets and variables** > **Actions**.
-14. Crea un nuevo Secret:
-    - **Name:** `VERCEL_TOKEN`
-    - **Value:** Pega el token de Vercel copiado
-15. Haz clic en **"Add secret"**.
+### Detener todos los servicios
 
-**¿Qué sucede ahora?**
-- El workflow `deploy-frontend.yaml` ya está configurado en `.github/workflows/`
-- Cada vez que hagas `git push` a la rama `main` (cambios en `frontend/**`), GitHub Actions ejecutará el despliegue
-- Vercel recibe los comandos y despliega tu aplicación automáticamente
-- Los cambios se verán en la web en 2-3 minutos
+`docker compose down`
 
-**Verifica que funciona:**
-- En GitHub, ve a **Actions** después de hacer push
-- Verás el workflow `Deploy Frontend to Vercel` ejecutándose
-- En Vercel Dashboard, verás nuevos despliegues iniciándose automáticamente
+### Ver registros (logs) del backend en tiempo real
 
-<!-- --- -->
+`docker compose logs -f backend`
 
-## 6. Conceptos clave
-
-### Docker Multi-stage
-
-En los `Dockerfile`, utilizamos dos o más fases:
-- **Builder:** Instala dependencias y compila/construye la aplicación
-- **Runner/Development:** Solo copia lo necesario para ejecutar
-
-Esto reduce el tamaño de las imágenes, mejora la seguridad y acelera el despliegue.
-
-### CORS (Cross-Origin Resource Sharing)
-
-El backend está configurado para aceptar peticiones del frontend. Sin esto, el navegador bloquearía la conexión por seguridad.
-
-```python
-app.add_middleware(CORSMiddleware, allow_origins=["*"])
-```
-
-### Variables de entorno
-
-- **Frontend:** `VITE_API_URL` indica dónde está el backend
-- **Backend:** `PORT` indica en qué puerto escuchar
-- **Base de datos (local):** `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- **Base de datos (producción):** `DATABASE_URL`
-
-Nunca incluyas estas en el código, usa siempre archivos `.env` (no versionados).
-
-### Secrets de GitHub
-
-Nunca subas contraseñas, tokens o claves al repositorio. Usa siempre:
-- GitHub Secrets (Settings > Secrets and variables)
-- Variables de entorno en plataformas de despliegue (Vercel, Render)
-
-<!-- --- -->
-
-## 7. Tecnologías utilizadas
-
-| Componente | Tecnología | Versión |
-|-----------|-----------|---------|
-| **Frontend** | Vue 3 | ^3.4.21 |
-| **Build Tool** | Vite | ^5.0.11 |
-| **CSS** | Tailwind CSS | ^3.4.1 |
-| **Backend** | FastAPI | Última |
-| **Python** | Python | 3.11+ |
-| **Servidor Docker** | Node.js | 20-slim |
-| **Base de Datos** | MySQL | 8.x |
-
-<!-- --- -->
-
-## 8. Comandos útiles durante el desarrollo
-
-```bash
-# Desarrollo local
-docker compose up --build
-
-# Detener servicios
-docker compose down
-
-# Reconstruir solo frontend
-docker compose up --build frontend
-
-# Ver logs de un servicio específico
-docker compose logs -f frontend
-
-# Ejecutar comando en un contenedor
-docker compose exec frontend npm install
-```
-
-<!-- --- -->
-
-## 9. Próximos pasos
-
-- [ ] Agregar autenticación con JWT
-- [ ] Escribir tests (pytest para backend, Vitest para frontend)
-- [ ] Configurar monitoring y logging
-- [ ] Documentar APIs con OpenAPI/Swagger
-
-<!-- --- -->
-
-## 10. Licencia
+## 7. Licencia
 
 Este proyecto es de código abierto y está disponible bajo la licencia MIT.
