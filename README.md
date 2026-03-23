@@ -1,59 +1,60 @@
-# Despliegue en Vercel, Render y Railway
+# 🎬 Mi Gestor de Películas (Despliegue Full Stack)
 
-Este repositorio es una guía práctica para aprender a estructurar, dockerizar y desplegar mi aplicación web siguiendo los principios de **CI/CD** con **GitHub Actions**, **Vercel**, **Render** y **Railway**.
-
-Para el  **entorno de desarrollo local**, utilizaremos **Docker Compose** para levantar el frontend (Vue 3), el backend (FastAPI) y la base de datos en contenedores separados, emulando el entorno de producción.
-
-Para el **despliegue en producción**, utilizaremos una plataforma especializada para cada servicio: **Vercel** para el frontend (Vue 3), **Render** para el backend (FastAPI) y **Railway** para la base de datos MySQL.
-
-A modo de resumen, esta serían las tecnologías utilizadas:
-
-- **Frontend:** Vue 3 + Vite + Tailwind CSS.
-- **Backend:** FastAPI (Python).
-- **Base de Datos:** MySQL.
-- **Desarrollo:** Docker Compose.
-- **Despliegue:** GitHub Actions + Render + Vercel + Railway.
-
-<!-- --- -->
+Este repositorio es una aplicación web completa (Gestor de Películas) construida para aprender a estructurar, dockerizar y desplegar siguiendo los principios de **CI/CD** con **GitHub Actions**, **Vercel**, **Render** y **Railway**.
 
 ## 🚀 Demo en Vivo
 Puedes probar la aplicación desplegada en el siguiente enlace:
 [👉 Ver Gestor de Películas en Vercel](https://practica-final-daw.vercel.app/)
 
-## Índice
+## 🛠️ Tecnologías utilizadas
 
-0. [Introducción](#introducción)
-1. [Estructura del Proyecto](#1-estructura-del-proyecto)
-2. [Desarrollo local con Docker](#2-desarrollo-local-con-docker)
-3. [Estructura del Frontend](#3-estructura-del-frontend)
-4. [Estructura del Backend](#4-estructura-del-backend)
-5. [Guía de Despliegue (CI/CD)](#5-guía-de-despliegue-cicd)
-   - [Despliegue del Backend (Render)](#a-despliegue-del-backend-render)
-   - [Despliegue del Frontend (Vercel)](#b-despliegue-del-frontend-vercel)
-6. [Conceptos clave](#6-conceptos-clave)
-7. [Tecnologías utilizadas](#7-tecnologías-utilizadas)
-8. [Comandos útiles durante el desarrollo](#8-comandos-útiles-durante-el-desarrollo)
-9. [Próximos pasos](#9-próximos-pasos)
-10. [Licencia](#licencia)
+| Componente | Tecnología |
+| :--- | :--- |
+| **Frontend** | Vue 3 + Vite + Tailwind CSS |
+| **Backend** | FastAPI (Python) + Pytest + Logging |
+| **Base de Datos** | MySQL |
+| **Desarrollo** | Docker Compose |
+| **Despliegue** | GitHub Actions + Render + Vercel + Railway |
 
-<!-- --- -->
+## 🌟 Características Avanzadas Implementadas
 
-## 0. Introducción
+* ✅ **Tests Automatizados:** Pruebas unitarias en el backend utilizando `pytest`.
+* ✅ **Monitorización y Logging:** Sistema de registro de eventos (logs) configurado en FastAPI.
+* ✅ **Documentación API Automática:** Swagger UI disponible en `/docs`.
+* ⏳ *Próximamente: Autenticación con JWT.*
 
-### ¿Qué es Vercel?
+## 1. Estructura del Proyecto
 
-[Vercel](https://vercel.com) es una plataforma de despliegue para frontend optimizada para Vue, React, Next.js, etc. Ofrece despliegue automático, CDN global y baja latencia.
+El repositorio está organizado siguiendo el patrón de monorepositorio sencillo:
+```text
+.
+├── backend/                # API REST con FastAPI (Python)
+│   ├── main.py             # Lógica de la API, CORS y Logging
+│   ├── test_main.py        # Pruebas automatizadas (pytest)
+│   ├── requirements.txt    # Dependencias del proyecto
+│   └── Dockerfile          # Imagen optimizada para producción
+├── frontend/               # Aplicación Web con Vue 3 + Vite
+│   ├── src/
+│   │   ├── App.vue         # Componente principal de Películas
+│   │   └── services/api.ts # Llamadas HTTP (Axios)
+│   ├── Dockerfile          # Imagen optimizada
+│   └── ...
+├── .github/workflows/      # Automatización (CI/CD)
+├── compose.yaml            # Orquestación para desarrollo local
+└── README.md               # Esta documentación
+```
 
-### ¿Qué es Render?
+### 2. Implementar Monitorización (Logging) y los Tests 🧪
 
-[Render](https://render.com) es una plataforma de despliegue para backend, APIs y bases de datos. Maneja automáticamente SSL, escalado e infraestructura.
+Para cumplir con el apartado 9 sin romper la app, vamos a hacer dos cosas en la carpeta `backend`: añadir `pytest` a los requerimientos y crear un archivo de pruebas.
 
-### ¿Qué es Railway?
+#### A) Actualizar `backend/requirements.txt`
+Abre ese archivo y añade estas líneas al final para poder usar los tests:
 
-[Railway](https://railway.com) es una plataforma de despliegue para bases de datos y servicios backend. Es ideal para gestionar bases de datos MySQL, PostgreSQL, etc.
-
-
-<!-- --- -->
+```text
+pytest==8.0.0
+httpx==0.26.0
+```
 
 ## 1. Estructura del Proyecto
 
